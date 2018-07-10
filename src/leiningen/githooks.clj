@@ -133,10 +133,24 @@ lein githooks run %s
   (let [cmds (get-in project [:githooks hook])]
     (loop [[cmd & cmds] cmds]
       (when (seq cmd)
-        (let [exit-code (apply sh (string/split cmd #"\W+"))]
-          (if (zero? exit-code)
-            (recur cmds)
-            (abort hook "hook failed.")))))))
+        (let [cmd' (->> (re-seq #"\$\([^)]+\)" cmd)
+                        set
+                        (map (fn [subcmd]
+                               [subcmd (remove clojure.string/blank?
+                                              (string/split (second (re-find #"\$\(([^\)]+)\)" subcmd)) #"\s+"))]))
+                        (map (fn [[subcmd-str subcmd]]
+                               [subcmd-str (:out (apply clojure.java.shell/sh subcmd))]))
+                        (reduce (fn [cmd [subcmd output]]
+                                  (clojure.string/replace
+                                   cmd
+                                   subcmd
+                                   output))
+                                cmd))]
+          (println cmd')
+          (let [exit-code (apply sh (string/split cmd' #"\s+"))]
+            (if (zero? exit-code)
+              (recur cmds)
+              (abort hook "hook failed."))))))))
 
 (defn githooks
   "`lein githooks install` will install the hooks required by
