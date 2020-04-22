@@ -1,4 +1,4 @@
-(defproject jainsahab/lein-githooks "1.0.0"
+(defproject jainsahab/lein-githooks "1.0.1-SNAPSHOT"
   :description "Leiningen plugin for managing git client hooks"
   :url "https://github.com/jainsahab/lein-githooks"
   :license {:name "Eclipse Public License"
