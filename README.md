@@ -46,7 +46,7 @@ Do not use `lein-githooks` if:
 
 Current dependency information:
 
-    [lein-githooks "0.1.0"]
+    [jainsahab/lein-githooks "1.0.0"]
 
 `lein-githooks` is all about distributing git hooks for your project so
 you probably want to install it at project level rather than in your
@@ -109,6 +109,23 @@ and hook installation will be manual for all your projects.
 {:user {:githooks ^:replace {:auto-install false}}
 ```
 
+### CI usage
+
+If you're using any CI tool like Jenkins/GoCD etc. `:auto-install` option 
+might cause some unpredictable permission related failures in build pipelines. 
+To avoid them, you can provide an enviornment variable name to this plugin whose 
+value if present, auto-installation will be skipped by default.
+
+```clojure
+  :profiles {:dev {:plugins [[jainsahab/lein-githooks "1.0.0"]]
+                   :githooks {:ci-env-variable "CI_BUILD_REF"
+                              :auto-install true
+                              :pre-push ["lein test"]
+                              :pre-commit ["lein eastwood"]
+}
+```
+
+
 ## Finally
 
 Thanks to [Roy Lines](https://github.com/roylines) for pointing me at
@@ -121,7 +138,7 @@ Feedback and contributions welcome.
 
 ## License
 
-Copyright © 2015 Greg Hawkins
+Copyright © 2020 Prateek Jain
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
