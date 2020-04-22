@@ -40,6 +40,7 @@
   [project]
   (->> (keys (:githooks project))
        (remove #{:auto-install})
+       (remove #{:ci-env-variable})
        (map name)))
 
 (defn hook-file
@@ -170,10 +171,15 @@ lein githooks run %s
     "run" (run project (keyword hook))
     (abort "Unknown subcommand")))
 
+(defn is-not-ci [project]
+  (let [ci-env-variable (get-in project [:githooks :ci-env-variable])]
+    (or (nil? ci-env-variable) (nil? (System/getenv ci-env-variable)))))
+
 (defn auto-install
   "Leiningen hook to call auto-install. No-op if :auto-install is false."
   [func & [project [task & _] :as args]]
-  (when (and (get-in project [:githooks :auto-install])
+  (when (and (is-not-ci project)
+             (get-in project [:githooks :auto-install])
              (not= task "githooks"))
     (install project))
   (apply func args))
